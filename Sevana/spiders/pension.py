@@ -7,42 +7,10 @@ from scrapy.http import FormRequest, Request
 
 class PensionSpider(CrawlSpider):
     name = 'pension'
-    start_urls = [
-        'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=172',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=189',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=171',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=209',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=210',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=215',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=218',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=167',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=760',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=407',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=514',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=610',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=350',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=734',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=225',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=391',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=366',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=723',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=1223',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=776',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=811',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=248',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=918',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=277',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=697',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=843',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=1052',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=313',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=1091',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=912',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=504',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=1130',
-        # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=524',
-    ]
-
+    # f = open("sevana/urls.txt")
+    # start_urls = [url.strip() for url in f.readlines()]
+    # f.close()
+    start_urls = ['http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=172']
     def __init__(self, param="", *args, **kwargs):
         super(PensionSpider, self).__init__(*args, **kwargs)
         self.param = param
@@ -62,9 +30,9 @@ class PensionSpider(CrawlSpider):
     def parse(self, response):
 
         # Change pension type and feth results
-        for x in range(1, 7):
+        for x in range(1,2):
             EVENTVALIDATION = response.xpath("//*[@id='__EVENTVALIDATION']/@value").extract()[0]
-            VIEWSTATE = response.xpath("//*[@id='__VIEWSTATE']/@value").extract()[0]   
+            VIEWSTATE = response.xpath("//*[@id='__VIEWSTATE']/@value").extract()[0]  
 
             yield FormRequest.from_response(
                 response,
@@ -80,24 +48,48 @@ class PensionSpider(CrawlSpider):
                     '__VIEWSTATE': VIEWSTATE,
                     '__EVENTVALIDATION':EVENTVALIDATION
                 }, 
-                callback=lambda r: self.pensionResults(r, x)
+                callback=self.pensionResults
             )
 
-    def pensionResults(self, response, x):
-
-
-
+    def pensionResults(self, response):
+        
         rows = response.xpath("//table[@id='ctl00_ContentPlaceHolder1_TabContainerLB_A_dgvLBPentype']/tr")
         for row in rows:
             pensioner = PensionerItem()
             pensioner['pensioner_id'] = row.xpath("td[1]/font/text()").extract()
             pensioner['pensioner_name'] = row.xpath("td[2]/font/text()").extract()
-            pensioner['address'] = row.xpath("td[3]/font/text()").extract()
+            # pensioner['address'] = row.xpath("td[3]/font/text()").extract()
             pensioner['last_disbursed_month'] = row.xpath("td[4]/font/text()").extract()
-            pensioner['pension_type'] = self.PensionType[x]
-
-            print pensioner
+            pensioner['pension_type'] = response.xpath("//select[@id='ctl00_ContentPlaceHolder1_TabContainerLB_A_ddPenType']/option[@selected='selected']/text()").extract()
             yield pensioner
+
+        # Follow next page if nest is there
+        isNext= response.xpath("//input[@id='ctl00_ContentPlaceHolder1_TabContainerLB_A_imgbtnNext']//@disabled").extract()
+        ptype_index= response.xpath("//select[@id='ctl00_ContentPlaceHolder1_TabContainerLB_A_ddPenType']/option[@selected='selected']//@value").extract()
+        EV = response.xpath("//*[@id='__EVENTVALIDATION']/@value").extract()[0]
+        VS = response.xpath("//*[@id='__VIEWSTATE']/@value").extract()[0]  
+
+        print EV
+
+        if isNext == []:
+            yield FormRequest.from_response(
+                 response,
+                 formname='aspnetForm',
+                 formdata={  
+                     '__EVENTTARGET':'ctl00$ContentPlaceHolder1$TabContainerLB$A$ddPenType',        
+                     'ctl00_ContentPlaceHolder1_TabContainerLB_ClientState': '{"ActiveTabIndex":0,"TabState":[true,true,true,true]}',
+                     'ctl00$ContentPlaceHolder1$TabContainerLB$A$ddPenType' :str(ptype_index),
+                     'ctl00$ContentPlaceHolder1$TabContainerLB$B$ddCategory':'0',
+                     'ctl00$ContentPlaceHolder1$TabContainerLB$C$ddGender':'0',
+                     '__LASTFOCUS:': '',
+                     '__EVENTARGUMENT':'',
+                     '__VIEWSTATE': VS,
+                     '__EVENTVALIDATION':EV,
+                     'ctl00$ContentPlaceHolder1$TabContainerLB$A$imgbtnNext.x':'8',
+                    'ctl00$ContentPlaceHolder1$TabContainerLB$A$imgbtnNext.y':'7'
+                 }, 
+                 callback= self.pensionResults
+            )
 
 
 
