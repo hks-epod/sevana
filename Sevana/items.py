@@ -8,7 +8,11 @@
 import scrapy
 
 
-class SevanaItem(scrapy.Item):
+class PensionerItem(scrapy.Item):
     # define the fields for your item here like:
-    name = scrapy.Field()
+    pensioner_id = scrapy.Field()
+    pensioner_name = scrapy.Field()
+    pension_type = scrapy.Field()
+    address = scrapy.Field()
+    last_disbursed_month = scrapy.Field()
     pass

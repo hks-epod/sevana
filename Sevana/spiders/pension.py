@@ -2,7 +2,7 @@ import urlparse
 from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.contrib.linkextractors.sgml import SgmlLinkExtractor
 from scrapy.selector import HtmlXPathSelector
-from Sevana.items import SevanaItem
+from Sevana.items import PensionerItem
 from scrapy.http import FormRequest, Request
 
 class PensionSpider(CrawlSpider):
@@ -43,17 +43,16 @@ class PensionSpider(CrawlSpider):
         # 'http://www.welfarepension.lsgkerala.gov.in/LBWiseEng.aspx?lbid=524',
     ]
 
-    def __init__(self, isHistory="", *args, **kwargs):
+    def __init__(self, param="", *args, **kwargs):
         super(PensionSpider, self).__init__(*args, **kwargs)
-        self.isHistory = isHistory
-
+        self.param = param
         self.PensionType = {
-            '1' : 'Agricultural Labour Pension',
-            '2' :'Indira Gandhi National Old Age Pension',
-            '3' :'Pension for the Mentally challenged',
-            '4' :'Pension for the Physically challenged',
-            '5' :'Pension for the  Unmarried Women above 50 years',
-            '6' :'Widow Pension'
+            1 : 'Agricultural Labour Pension',
+            2 :'Indira Gandhi National Old Age Pension',
+            3 :'Pension for the Mentally challenged',
+            4 :'Pension for the Physically challenged',
+            5 :'Pension for the  Unmarried Women above 50 years',
+            6 :'Widow Pension'
         }
 
     def start_requests(self):
@@ -81,25 +80,24 @@ class PensionSpider(CrawlSpider):
                     '__VIEWSTATE': VIEWSTATE,
                     '__EVENTVALIDATION':EVENTVALIDATION
                 }, 
-                callback=self.pensionResults
+                callback=lambda r: self.pensionResults(r, x)
             )
 
-    def pensionResults(self, response):
-        print response.body
-
-        Pensioner ID = response.xpath("//*[@id='__EVENTVALIDATION']/@value").extract()[0]
-
-
-//*[@id="ctl00_ContentPlaceHolder1_TabContainerLB_A_dgvLBPentype"]/tbody/tr[2]
-        
+    def pensionResults(self, response, x):
 
 
 
-        # item = SevanaItem()
+        rows = response.xpath("//table[@id='ctl00_ContentPlaceHolder1_TabContainerLB_A_dgvLBPentype']/tr")
+        for row in rows:
+            pensioner = PensionerItem()
+            pensioner['pensioner_id'] = row.xpath("td[1]/font/text()").extract()
+            pensioner['pensioner_name'] = row.xpath("td[2]/font/text()").extract()
+            pensioner['address'] = row.xpath("td[3]/font/text()").extract()
+            pensioner['last_disbursed_month'] = row.xpath("td[4]/font/text()").extract()
+            pensioner['pension_type'] = self.PensionType[x]
 
-        #  Fetch data here
-        # item['NitricOxide'] = response.xpath("//*[@id='Head1']/title/text()").extract()[0]
-        # yield item
+            print pensioner
+            yield pensioner
 
 
 
