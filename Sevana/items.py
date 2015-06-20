@@ -19,6 +19,14 @@ class PensionerItem(scrapy.Item):
     pass
 
 
-class BplItem(Scrapy>Item): 
-	name= scrapy.Field()
-    pass
+class BplItem(scrapy.Item): 
+	i1= scrapy.Field()
+	i2= scrapy.Field()
+	i3= scrapy.Field()
+	i4= scrapy.Field()
+	i5= scrapy.Field()
+	i6= scrapy.Field()
+	i7= scrapy.Field()
+	i8= scrapy.Field()
+	i9= scrapy.Field()
+	pass
