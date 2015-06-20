@@ -14,5 +14,11 @@ class PensionerItem(scrapy.Item):
     pensioner_name = scrapy.Field()
     pension_type = scrapy.Field()
     address = scrapy.Field()
+    gender = scrapy.Field()
     last_disbursed_month = scrapy.Field()
+    pass
+
+
+class BplItem(Scrapy>Item): 
+	name= scrapy.Field()
     pass
