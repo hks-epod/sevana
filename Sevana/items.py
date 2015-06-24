@@ -30,3 +30,21 @@ class BplItem(scrapy.Item):
 	i8= scrapy.Field()
 	i9= scrapy.Field()
 	pass
+
+class WardpensionerItem(scrapy.Item):
+    # define the fields for your item here like:
+    pensioner_id = scrapy.Field()
+    pensioner_name = scrapy.Field()
+    ward_name = scrapy.Field()
+    ward_last_disbursed_month = scrapy.Field()
+    pass
+
+class WardItem(scrapy.Item):
+    ward_id= scrapy.Field() 
+    ward_name= scrapy.Field()
+    ALP = scrapy.Field()
+    NOAP= scrapy.Field()
+    MCP= scrapy.Field() 
+    PHP= scrapy.Field()
+    UMWP= scrapy.Field()
+    WP=scrapy.Field() 
